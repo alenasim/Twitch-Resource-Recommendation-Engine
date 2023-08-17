@@ -1,0 +1,45 @@
+// 项目的type是gradle type： This document specifies that we use Java as main language, this project group, version and all the details are recorded here
+// Here, it also documents all the dependencies to support the web applications to operate
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.0.7'
+    id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group = 'com.laioffer'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+// 为了在这用，那在哪里找？ 去mavenCentral找
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2022.0.1"
+    }
+}
+
+dependencies {
+    // implementation: 代码需要import之后implement
+    // runtime：我不需要import，我只需要run time运行的时候，有就可以
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.+'
+    implementation 'com.github.javafaker:javafaker:1.0.2'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.security:spring-security-oauth2-client'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

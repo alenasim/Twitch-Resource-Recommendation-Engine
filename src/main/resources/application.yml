@@ -1,0 +1,49 @@
+# indent sensitive. any changes in the indentation drastically impact the performance.
+spring:
+  jackson:
+    default-property-inclusion: non_null
+  cloud:
+    openfeign:
+      oauth2:
+        enabled: true
+        clientRegistrationId: twitch
+      client:
+
+        config:
+          twitch-api:
+            url: https://api.twitch.tv/helix
+            loggerLevel: basic
+            default-request-headers:
+              Client-Id: "g2a6fm911ybpjm7t2tcvvbxq46fb9w"
+  security:
+    oauth2:
+      client:
+        registration:
+          twitch:
+            authorization-grant-type: client_credentials
+            client-authentication-method: client_secret_post
+            client-id: "g2a6fm911ybpjm7t2tcvvbxq46fb9w"
+            client-secret: "h3oaytwn35m3r3lyb8ru7vu0sd5bpy"
+        provider:
+          twitch:
+            token-uri: https://id.twitch.tv/oauth2/token
+  datasource:
+    url: jdbc:mysql://${DATABASE_URL:localhost}:3306/twitch?createDatabaseIfNotExist=true  #怎么连到database的？jdbc是java连接framework的标准
+    #上面的url什么意思？jdbc:mysql是protocol; 网址是DATABASE_URL(环境变量)或者localhost； 我要连到哪一个端口：3306(SpringBoot用8080，MySQL用3306)
+    #去找MYSQL_DATABASE的值是twitch的database，没找到的话create new one
+    username: ${DATABASE_USERNAME:root}  #cloud里面有database的话，不能像本地一样那么简单。本地user name就是root；到了AWS就是设置好的其他login
+    password: ${DATABASE_PASSWORD:secret}  #本地里面就是用“secret”做密码，但是到了AWS就要用更复杂的密码去锁好。
+    driver-class-name: com.mysql.cj.jdbc.Driver  # 这个driver跟gradle里define的runtime only的有关。假如没有在graddle里define的话，在这里找不到这个driver，报错
+  sql:
+    init:
+      mode: ${INIT_DB:always}  #如果没有specify，默认就用always；但是在AWS里run的时候，我们会在AWS里定义这些环境变量，避免以后mess up and pick up info - 是linux内部操作
+      schema-locations: "classpath:database-init.sql"  #run的时候，程序都在package里面； classpath是一个keyword去识别文件的。如果是文件，直接写文件名，如果是class，就用package名字
+  cache:
+    caffeine:
+      spec: expireAfterWrite=5s
+
+logging:
+  level:
+    org.apache.coyote.http11.Http11InputBuffer: DEBUG # Incoming http requests
+    com.laioffer.twitch.external.TwitchApiClient: DEBUG
+    org.springframework.jdbc.core: DEBUG # SQL
